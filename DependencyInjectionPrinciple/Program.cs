@@ -15,20 +15,42 @@ namespace DependencyInjectionPrinciple
          
         }
 
-        public class CustomerBusinessLogic
+        interface IDataAccessDependency
         {
-            private ICustomerDataAccess _custDataAccess;
+            void SetDependency(ICustomerDataAccess customerDataAccess);
+        }
+
+        public class CustomerBusinessLogic : IDataAccessDependency
+        {
+            private ICustomerDataAccess _dataAccess;
+
+            //Property Injection
+            public ICustomerDataAccess DataAccess { get; set; }
+
+            //Constructor Injection
+            public CustomerBusinessLogic(ICustomerDataAccess custDataAccess)
+            {
+                _dataAccess = custDataAccess;
+            }
+
+            //Method Injection
+            public void SetDependency(ICustomerDataAccess customerDataAccess)
+            {
+                _dataAccess = customerDataAccess;
+            }
 
             public CustomerBusinessLogic()
             {
+                _dataAccess = new CustomerDataAccess();
             }
 
             public string GetCustomerName(int id)
             {
-                _custDataAccess = DataAccessFactory.GetDataAccessObj();
 
-                return _custDataAccess.GetCustomerName(id);
+                return _dataAccess.GetCustomerName(id);
             }
+
+            
         }
 
         public class DataAccessFactory
@@ -52,6 +74,27 @@ namespace DependencyInjectionPrinciple
 
             public string GetCustomerName(int id) {
                 return "Dummy Customer Name";        
+            }
+        }
+
+        public class CustomerService
+        {
+            CustomerBusinessLogic _customerBL;
+
+            public CustomerService()
+            {
+                //Contstructor injection
+                _customerBL = new CustomerBusinessLogic(new CustomerDataAccess());
+
+                //Property Injection
+                _customerBL.DataAccess = new CustomerDataAccess();
+
+                //Method Injection
+                _customerBL.SetDependency(new CustomerDataAccess());
+            }
+
+            public string GetCustomerName(int id) {
+                return _customerBL.GetCustomerName(id);
             }
         }
     }
