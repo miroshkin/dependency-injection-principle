@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unity;
+using Unity.Injection;
 
 namespace DependencyInjectionPrinciple
 {
@@ -16,8 +17,15 @@ namespace DependencyInjectionPrinciple
             container.RegisterType<ICar, Audi>("LuxuryCar");
             
             Console.WriteLine("Hello, DIP!");
-            Driver driver = container.Resolve<Driver>(); 
-            driver.RunCar();
+
+            container.RegisterType<Driver>("LuxuryCarDriver", 
+                new InjectionConstructor(container.Resolve<ICar>("LuxuryCar")));
+
+            Driver driver1 = container.Resolve<Driver>();// injects BMW
+            driver1.RunCar();
+
+            Driver driver2 = container.Resolve<Driver>("LuxuryCarDriver");// injects Audi
+            driver2.RunCar();
          
         }
 
